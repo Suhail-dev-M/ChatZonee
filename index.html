@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ChatZonee , Message and File Upload designed by suhail for discussion and others.No need to login.PROGRAMMED AND DESIGNED BY FOUNDER-SUHAIL</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      padding: 20px;
+      margin: 0;
+      background: linear-gradient(135deg, #6a11cb, #2575fc);
+      color: #fff;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 20px;
+      border-radius: 12px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 2rem;
+      margin-bottom: 20px;
+    }
+
+    .messages {
+      margin-bottom: 20px;
+      max-height: 300px;
+      overflow-y: auto;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      padding-bottom: 20px;
+    }
+
+    .message {
+      margin-bottom: 15px;
+      background: rgba(0, 0, 0, 0.2);
+      padding: 10px;
+      border-radius: 8px;
+    }
+
+    .message .user {
+      font-weight: bold;
+      color: #ffcc00;
+    }
+
+    .message .timestamp {
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.7);
+      text-align: right;
+      margin-top: 5px;
+    }
+
+    input[type="text"], textarea, input[type="file"], button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+    }
+
+    textarea {
+      resize: none;
+    }
+
+    button {
+      background: linear-gradient(135deg, #6a11cb, #2575fc);
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background: linear-gradient(135deg, #2575fc, #6a11cb);
+    }
+
+    input[type="text"]:focus, textarea:focus, button:focus {
+      outline: none;
+      box-shadow: 0 0 5px #6a11cb;
+    }
+
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #6a11cb;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>ChatZonee</h1>
+    
+    <div id="userNameSection">
+      <label for="userName">Enter your name:</label>
+      <input type="text" id="userName" placeholder="Your Name">
+      <button onclick="setUserName()">Set Name</button>
+    </div>
+
+    <div id="chatSection" style="display: none;">
+      <div class="messages" id="messages"></div>
+
+      <label for="messageInput">Your Message:</label>
+      <textarea id="messageInput" rows="3" placeholder="Type your message here..."></textarea>
+
+      <label for="fileInput">Send File (Images, Videos, etc.):</label>
+      <input type="file" id="fileInput">
+
+      <div id="uploadProgress" style="display: none;">
+        <label>Sending: </label>
+        <progress id="progressBar" max="100" value="0" style="width: 100%;"></progress>
+      </div>
+
+      <button onclick="sendMessage()">Send</button>
+    </div>
+  </div>
+
+  <script>
+    let userName = localStorage.getItem('userName');
+    let messages = [];
+
+    // Fetch messages from the server
+    window.onload = function () {
+      if (userName) {
+        showChatSection();
+        loadMessages();
+
+        // Automatically refresh messages every 5 seconds
+        setInterval(loadMessages, 5000);
+      } else {
+        document.getElementById('userNameSection').style.display = 'block';
+      }
+    };
+
+    function loadMessages() {
+      fetch('messages.php')
+        .then(response => response.json())
+        .then(data => {
+          if (JSON.stringify(messages) !== JSON.stringify(data)) {
+            messages = data;
+            displayMessages();
+          }
+        });
+    }
+
+    function setUserName() {
+      userName = document.getElementById('userName').value;
+      if (userName) {
+        localStorage.setItem('userName', userName);
+        showChatSection();
+        logVisitor();  // Log visitor when name is set
+      } else {
+        alert('Please enter your name!');
+      }
+    }
+
+    function showChatSection() {
+      document.getElementById('userNameSection').style.display = 'none';
+      document.getElementById('chatSection').style.display = 'block';
+    }
+
+    function displayMessages() {
+      const messagesContainer = document.getElementById('messages');
+      messagesContainer.innerHTML = '';
+      
+      messages.forEach(msg => {
+        const messageElement = document.createElement('div');
+        messageElement.classList.add('message');
+        messageElement.innerHTML = `
+          <div class="user">${msg.user}</div>
+          <div class="content">${msg.content}</div>
+          <div class="timestamp">${new Date(msg.timestamp).toLocaleString()}</div>
+        `;
+        messagesContainer.appendChild(messageElement);
+      });
+
+      // Scroll to the bottom to display the latest message
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    function sendMessage() {
+      const messageInput = document.getElementById('messageInput').value;
+      const fileInput = document.getElementById('fileInput').files[0];
+      const progressBar = document.getElementById('progressBar');
+      const uploadProgress = document.getElementById('uploadProgress');
+
+      if (!messageInput && !fileInput) {
+        alert('Please enter a message or upload a file.');
+        return;
+      }
+
+      let messageContent = messageInput;
+
+      if (fileInput) {
+        const formData = new FormData();
+        formData.append('file', fileInput);
+
+        uploadProgress.style.display = 'block';
+
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', 'upload.php', true);
+
+        xhr.upload.addEventListener('progress', (event) => {
+          if (event.lengthComputable) {
+            const percentComplete = (event.loaded / event.total) * 100;
+            progressBar.value = percentComplete;
+          }
+        });
+
+        xhr.onload = function () {
+          uploadProgress.style.display = 'none';
+          progressBar.value = 0;
+
+          if (xhr.status === 200) {
+            const response = JSON.parse(xhr.responseText);
+            if (response.fileUrl) {
+              messageContent += `<br><a href="${response.fileUrl}" target="_blank">Download ${fileInput.name}</a>`;
+              addMessage(messageContent);
+            } else {
+              alert(response.error || 'File upload failed.');
+            }
+          } else {
+            alert('An error occurred during the upload.');
+          }
+        };
+
+        xhr.onerror = function () {
+          uploadProgress.style.display = 'none';
+          progressBar.value = 0;
+          alert('An error occurred during the upload.');
+        };
+
+        xhr.send(formData);
+      } else {
+        addMessage(messageContent);
+      }
+
+      document.getElementById('messageInput').value = '';
+      document.getElementById('fileInput').value = '';
+    }
+
+    function addMessage(content) {
+      const message = {
+        user: userName,
+        content: content
+      };
+
+      fetch('messages.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(message)
+      })
+      .then(response => {
+        if (response.ok) {
+          loadMessages();
+        }
+      });
+    }
+
+    // Log the visitor's name or Anonymous Visitor
+    function logVisitor() {
+      const userName = document.getElementById('userName').value.trim();
+      fetch('log_visitor.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ user: userName || 'Anonymous Visitor' }) // Default to "Anonymous Visitor"
+      })
+      .then(response => {
+        if (response.ok) {
+          console.log('Visitor logged successfully!');
+        } else {
+          console.error('Failed to log visitor.');
+        }
+      })
+      .catch(error => {
+        console.error('Error logging visitor:', error);
+      });
+    }
+  </script>
+
+</body>
+</html>
