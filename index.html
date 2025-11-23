@@ -1,297 +1,286 @@
+<!-- Resource placeholder (uploaded file path): /mnt/data/messages.php -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ChatZonee , Message and File Upload designed by suhail for discussion and others.No need to login.PROGRAMMED AND DESIGNED BY FOUNDER-SUHAIL</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ChatZonee — Static Advanced (by Suhail)</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
   <style>
-    body {
-      font-family: 'Poppins', sans-serif;
-      padding: 20px;
-      margin: 0;
-      background: linear-gradient(135deg, #6a11cb, #2575fc);
-      color: #fff;
+    :root{
+      --bg1: #6a11cb; --bg2: #2575fc; --card: rgba(255,255,255,0.06);
+      --accent: #ffcc00; --muted: rgba(255,255,255,0.75);
     }
+    *{box-sizing:border-box}
+    body{font-family:'Poppins', sans-serif; margin:0; padding:24px; background:linear-gradient(135deg,var(--bg1),var(--bg2)); color:#fff}
+    .wrap{max-width:820px; margin:0 auto}
+    .app{display:grid; grid-template-columns: 1fr 320px; gap:18px; align-items:start}
+    .card{background:var(--card); padding:16px; border-radius:12px; box-shadow:0 8px 20px rgba(0,0,0,0.25)}
+    h1{margin:0 0 12px; font-size:1.4rem}
 
-    .container {
-      max-width: 600px;
-      margin: 0 auto;
-      background: rgba(255, 255, 255, 0.1);
-      padding: 20px;
-      border-radius: 12px;
-      backdrop-filter: blur(10px);
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-    }
+    /* chat column */
+    .chat{display:flex; flex-direction:column; height:80vh}
+    .messages{flex:1; overflow:auto; padding:12px; border-radius:8px; background:linear-gradient(180deg, rgba(0,0,0,0.08), transparent)}
+    .composer{margin-top:12px; display:flex; gap:8px; align-items:flex-end}
+    textarea{flex:1; min-height:64px; resize:vertical; padding:10px; border-radius:8px; border:none}
 
-    h1 {
-      text-align: center;
-      font-size: 2rem;
-      margin-bottom: 20px;
-    }
+    /* right column */
+    .controls{height:80vh; display:flex; flex-direction:column}
+    .controls .section{margin-bottom:12px}
 
-    .messages {
-      margin-bottom: 20px;
-      max-height: 300px;
-      overflow-y: auto;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-      padding-bottom: 20px;
-    }
+    /* message bubbles */
+    .msg{display:block; margin-bottom:12px; max-width:78%; padding:10px 12px; border-radius:12px; position:relative; word-wrap:break-word}
+    .msg .meta{font-size:0.8rem; color:var(--muted); margin-bottom:6px}
+    .msg.user{background:linear-gradient(90deg, rgba(37,117,252,0.16), rgba(106,17,203,0.16)); margin-left:auto; border-top-right-radius:4px}
+    .msg.other{background:rgba(255,255,255,0.06); border-top-left-radius:4px}
+    .msg .content img{max-width:320px; height:auto; display:block; border-radius:6px; margin-top:8px}
+    .msg .content video{max-width:320px; display:block; margin-top:8px}
 
-    .message {
-      margin-bottom: 15px;
-      background: rgba(0, 0, 0, 0.2);
-      padding: 10px;
-      border-radius: 8px;
-    }
+    .msg-actions{position:absolute; top:6px; right:6px; display:flex; gap:6px}
+    .small-btn{background:transparent; border:none; color:var(--muted); cursor:pointer}
 
-    .message .user {
-      font-weight: bold;
-      color: #ffcc00;
-    }
+    /* utilities */
+    .row{display:flex; gap:8px}
+    .muted{color:var(--muted)}
+    .btn{padding:10px;border-radius:8px;border:none;cursor:pointer;background:linear-gradient(135deg,var(--bg1),var(--bg2));color:#fff}
+    .danger{background:transparent;border:1px solid rgba(255,255,255,0.12)}
 
-    .message .timestamp {
-      font-size: 0.8rem;
-      color: rgba(255, 255, 255, 0.7);
-      text-align: right;
-      margin-top: 5px;
-    }
-
-    input[type="text"], textarea, input[type="file"], button {
-      width: 100%;
-      padding: 12px;
-      margin-top: 10px;
-      border: none;
-      border-radius: 6px;
-      font-size: 1rem;
-    }
-
-    textarea {
-      resize: none;
-    }
-
-    button {
-      background: linear-gradient(135deg, #6a11cb, #2575fc);
-      color: #fff;
-      border: none;
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
-
-    button:hover {
-      background: linear-gradient(135deg, #2575fc, #6a11cb);
-    }
-
-    input[type="text"]:focus, textarea:focus, button:focus {
-      outline: none;
-      box-shadow: 0 0 5px #6a11cb;
-    }
-
-    ::-webkit-scrollbar {
-      width: 8px;
-    }
-
-    ::-webkit-scrollbar-thumb {
-      background: #6a11cb;
-      border-radius: 5px;
-    }
+    /* responsive */
+    @media (max-width:900px){.app{grid-template-columns:1fr;}.controls{order:2;height:auto}.chat{height:auto}}
   </style>
 </head>
 <body>
-
-  <div class="container">
-    <h1>ChatZonee</h1>
-    
-    <div id="userNameSection">
-      <label for="userName">Enter your name:</label>
-      <input type="text" id="userName" placeholder="Your Name">
-      <button onclick="setUserName()">Set Name</button>
+  <div class="wrap">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <h1>ChatZonee — Static Advanced</h1>
+      <div class="row">
+        <button class="btn" id="clearAllBtn">Clear All</button>
+        <button class="btn danger" id="exportBtn">Export</button>
+      </div>
     </div>
 
-    <div id="chatSection" style="display: none;">
-      <div class="messages" id="messages"></div>
+    <div class="app">
+      <div class="card chat">
+        <div id="messagesContainer" class="messages" aria-live="polite"></div>
 
-      <label for="messageInput">Your Message:</label>
-      <textarea id="messageInput" rows="3" placeholder="Type your message here..."></textarea>
-
-      <label for="fileInput">Send File (Images, Videos, etc.):</label>
-      <input type="file" id="fileInput">
-
-      <div id="uploadProgress" style="display: none;">
-        <label>Sending: </label>
-        <progress id="progressBar" max="100" value="0" style="width: 100%;"></progress>
+        <div class="composer">
+          <textarea id="messageInput" placeholder="Type a message. Shift+Enter for newline. Enter to send."></textarea>
+          <div style="width:120px">
+            <input id="fileInput" type="file" accept="image/*,video/*,application/pdf" />
+            <button class="btn" id="sendBtn" style="margin-top:8px;width:100%">Send</button>
+          </div>
+        </div>
       </div>
 
-      <button onclick="sendMessage()">Send</button>
+      <div class="controls card">
+        <div class="section">
+          <label class="muted">Your Name</label>
+          <input id="userName" placeholder="Your name" />
+          <div style="margin-top:8px" class="row">
+            <button id="saveNameBtn" class="btn">Save</button>
+            <button id="logoutBtn" class="btn danger">Forget</button>
+          </div>
+        </div>
+
+        <div class="section">
+          <label class="muted">Chat Controls</label>
+          <p class="muted">Messages are stored in your browser (localStorage). Images &amp; videos are stored as Data URLs; keep files small.</p>
+          <p class="muted">Syncs across tabs. Works offline.</p>
+        </div>
+
+        <div class="section" style="margin-top:auto">
+          <div class="muted">Storage</div>
+          <div id="storageInfo" class="muted" style="margin-top:6px">Loading...</div>
+        </div>
+      </div>
     </div>
   </div>
 
   <script>
-    let userName = localStorage.getItem('userName');
-    let messages = [];
+    // Resource: original uploaded path (kept for reference)
+    const RESOURCE_PATH = '/mnt/data/messages.php';
 
-    // Fetch messages from the server
-    window.onload = function () {
-      if (userName) {
-        showChatSection();
-        loadMessages();
+    // App state
+    const STORAGE_KEY = 'chatzonee_messages_v2';
+    const NAME_KEY = 'chatzonee_name_v2';
+    const MAX_FILE_SIZE = 1024 * 1024 * 1.5; // ~1.5MB recommended for localStorage
 
-        // Automatically refresh messages every 5 seconds
-        setInterval(loadMessages, 5000);
-      } else {
-        document.getElementById('userNameSection').style.display = 'block';
-      }
-    };
+    let messages = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
 
-    function loadMessages() {
-      fetch('messages.php')
-        .then(response => response.json())
-        .then(data => {
-          if (JSON.stringify(messages) !== JSON.stringify(data)) {
-            messages = data;
-            displayMessages();
-          }
-        });
+    // Helpers
+    function escapeHTML(str){
+      if(!str) return '';
+      return str.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'","&#39;");
     }
 
-    function setUserName() {
-      userName = document.getElementById('userName').value;
-      if (userName) {
-        localStorage.setItem('userName', userName);
-        showChatSection();
-        logVisitor();  // Log visitor when name is set
-      } else {
-        alert('Please enter your name!');
-      }
+    function formatTime(iso){
+      try{ return new Date(iso).toLocaleString(); }catch(e){ return '' }
     }
 
-    function showChatSection() {
-      document.getElementById('userNameSection').style.display = 'none';
-      document.getElementById('chatSection').style.display = 'block';
+    function saveMessages(){
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
+      updateStorageInfo();
+      // broadcast to other tabs
+      try{ localStorage.setItem('chatzonee_last_update', Date.now()); }catch(e){}
     }
 
-    function displayMessages() {
-      const messagesContainer = document.getElementById('messages');
-      messagesContainer.innerHTML = '';
-      
-      messages.forEach(msg => {
-        const messageElement = document.createElement('div');
-        messageElement.classList.add('message');
-        messageElement.innerHTML = `
-          <div class="user">${msg.user}</div>
-          <div class="content">${msg.content}</div>
-          <div class="timestamp">${new Date(msg.timestamp).toLocaleString()}</div>
-        `;
-        messagesContainer.appendChild(messageElement);
-      });
-
-      // Scroll to the bottom to display the latest message
-      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    function addMessage(user, content, meta={}){
+      const msg = { id: Date.now() + '-' + Math.random().toString(36).slice(2,8), user, content, meta, time: new Date().toISOString() };
+      messages.push(msg);
+      saveMessages();
+      renderMessages();
     }
 
-    function sendMessage() {
-      const messageInput = document.getElementById('messageInput').value;
-      const fileInput = document.getElementById('fileInput').files[0];
-      const progressBar = document.getElementById('progressBar');
-      const uploadProgress = document.getElementById('uploadProgress');
-
-      if (!messageInput && !fileInput) {
-        alert('Please enter a message or upload a file.');
-        return;
-      }
-
-      let messageContent = messageInput;
-
-      if (fileInput) {
-        const formData = new FormData();
-        formData.append('file', fileInput);
-
-        uploadProgress.style.display = 'block';
-
-        const xhr = new XMLHttpRequest();
-        xhr.open('POST', 'upload.php', true);
-
-        xhr.upload.addEventListener('progress', (event) => {
-          if (event.lengthComputable) {
-            const percentComplete = (event.loaded / event.total) * 100;
-            progressBar.value = percentComplete;
-          }
-        });
-
-        xhr.onload = function () {
-          uploadProgress.style.display = 'none';
-          progressBar.value = 0;
-
-          if (xhr.status === 200) {
-            const response = JSON.parse(xhr.responseText);
-            if (response.fileUrl) {
-              messageContent += `<br><a href="${response.fileUrl}" target="_blank">Download ${fileInput.name}</a>`;
-              addMessage(messageContent);
-            } else {
-              alert(response.error || 'File upload failed.');
-            }
-          } else {
-            alert('An error occurred during the upload.');
-          }
-        };
-
-        xhr.onerror = function () {
-          uploadProgress.style.display = 'none';
-          progressBar.value = 0;
-          alert('An error occurred during the upload.');
-        };
-
-        xhr.send(formData);
-      } else {
-        addMessage(messageContent);
-      }
-
-      document.getElementById('messageInput').value = '';
-      document.getElementById('fileInput').value = '';
+    function deleteMessage(id){
+      if(!confirm('Delete this message?')) return;
+      messages = messages.filter(m => m.id !== id);
+      saveMessages();
+      renderMessages();
     }
 
-    function addMessage(content) {
-      const message = {
-        user: userName,
-        content: content
-      };
+    function clearAll(){
+      if(!confirm('Clear all chat? This cannot be undone.')) return;
+      messages = [];
+      saveMessages();
+      renderMessages();
+    }
 
-      fetch('messages.php', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(message)
-      })
-      .then(response => {
-        if (response.ok) {
-          loadMessages();
+    function downloadData(filename, data){
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([data], {type:'application/json'}));
+      a.download = filename;
+      document.body.appendChild(a); a.click(); a.remove();
+    }
+
+    function updateStorageInfo(){
+      const raw = localStorage.getItem(STORAGE_KEY) || '';
+      const bytes = new Blob([raw]).size;
+      const kb = (bytes/1024).toFixed(1);
+      document.getElementById('storageInfo').textContent = `${kb} KB used (${messages.length} messages)`;
+    }
+
+    // Render
+    function renderMessages(){
+      const container = document.getElementById('messagesContainer');
+      container.innerHTML = '';
+      const user = localStorage.getItem(NAME_KEY) || 'You';
+
+      messages.forEach(m => {
+        const div = document.createElement('div');
+        const isUser = m.user === user;
+        div.className = 'msg ' + (isUser ? 'user' : 'other');
+
+        // message inner HTML with escaped content but allow simple tags for links and data URLs
+        let contentHtml = m.content;
+
+        // If content is plain text, escape it
+        if(!contentHtml.startsWith('<') || contentHtml.includes('&lt;')){
+          // it's stored with safe HTML already for links/data URLs
         }
+
+        const metaHtml = `<div class="meta"><strong>${escapeHTML(m.user)}</strong> · <span class="muted">${formatTime(m.time)}</span></div>`;
+
+        div.innerHTML = metaHtml + `<div class="content">${contentHtml}</div>`;
+
+        // actions
+        const actions = document.createElement('div');
+        actions.className = 'msg-actions';
+        const del = document.createElement('button'); del.className='small-btn'; del.title='Delete'; del.innerHTML='🗑️';
+        del.onclick = () => deleteMessage(m.id);
+        actions.appendChild(del);
+        div.appendChild(actions);
+
+        container.appendChild(div);
       });
+
+      container.scrollTop = container.scrollHeight;
+      updateStorageInfo();
     }
 
-    // Log the visitor's name or Anonymous Visitor
-    function logVisitor() {
-      const userName = document.getElementById('userName').value.trim();
-      fetch('log_visitor.php', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ user: userName || 'Anonymous Visitor' }) // Default to "Anonymous Visitor"
-      })
-      .then(response => {
-        if (response.ok) {
-          console.log('Visitor logged successfully!');
+    // File handling: convert to Data URL and produce safe HTML snippet
+    function fileToHtmlSnippet(file, callback){
+      if(!file) return callback('');
+      if(file.size > MAX_FILE_SIZE){
+        return callback(`<div style="color:#ffdddd;padding:8px;border-radius:6px;background:rgba(255,0,0,0.06)">File too large (max ${(MAX_FILE_SIZE/1024/1024).toFixed(2)} MB)</div>`);
+      }
+      const reader = new FileReader();
+      reader.onload = function(e){
+        const dataUrl = e.target.result;
+        const type = file.type || '';
+        if(type.startsWith('image/')){
+          callback(`${escapeHTML(file.name)}<br><img src="${dataUrl}" alt="${escapeHTML(file.name)}" />`);
+        } else if(type.startsWith('video/')){
+          callback(`${escapeHTML(file.name)}<br><video controls src="${dataUrl}"></video>`);
         } else {
-          console.error('Failed to log visitor.');
+          // other types: download link
+          callback(`${escapeHTML(file.name)}<br><a download="${escapeHTML(file.name)}" href="${dataUrl}">Download ${escapeHTML(file.name)}</a>`);
         }
-      })
-      .catch(error => {
-        console.error('Error logging visitor:', error);
-      });
+      };
+      reader.onerror = function(){ callback('<div class="muted">Failed to read file</div>'); };
+      reader.readAsDataURL(file);
     }
-  </script>
 
+    // UI wiring
+    document.getElementById('sendBtn').addEventListener('click', onSend);
+    document.getElementById('saveNameBtn').addEventListener('click', () => {
+      const v = document.getElementById('userName').value.trim();
+      if(!v) return alert('Enter a name');
+      localStorage.setItem(NAME_KEY, v);
+      alert('Name saved');
+      renderMessages();
+    });
+    document.getElementById('logoutBtn').addEventListener('click', ()=>{
+      localStorage.removeItem(NAME_KEY);
+      document.getElementById('userName').value = '';
+      alert('Name forgotten');
+      renderMessages();
+    });
+    document.getElementById('clearAllBtn').addEventListener('click', clearAll);
+    document.getElementById('exportBtn').addEventListener('click', ()=>{
+      downloadData('chatzonee_export_'+Date.now()+'.json', JSON.stringify(messages, null, 2));
+    });
+
+    function onSend(){
+      const text = document.getElementById('messageInput').value.trim();
+      const file = document.getElementById('fileInput').files[0];
+      const user = localStorage.getItem(NAME_KEY) || 'Anonymous';
+
+      if(!text && !file) return alert('Type a message or attach a file');
+
+      if(file){
+        fileToHtmlSnippet(file, (snippet)=>{
+          const content = escapeHTML(text).replaceAll('\n','<br>') + (text? '<br>':'') + snippet;
+          addMessage(user, content, {fileName: file.name, fileType: file.type});
+          document.getElementById('messageInput').value = '';
+          document.getElementById('fileInput').value = '';
+        });
+      } else {
+        const content = escapeHTML(text).replaceAll('\n','<br>');
+        addMessage(user, content);
+        document.getElementById('messageInput').value = '';
+      }
+    }
+
+    // Keyboard: Enter to send, Shift+Enter newline
+    document.getElementById('messageInput').addEventListener('keydown', function(e){
+      if(e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); onSend(); }
+    });
+
+    // Storage sync across tabs
+    window.addEventListener('storage', (e)=>{
+      if(e.key === 'chatzonee_last_update'){
+        messages = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+        renderMessages();
+      }
+    });
+
+    // initialize
+    document.getElementById('userName').value = localStorage.getItem(NAME_KEY) || '';
+    renderMessages();
+    updateStorageInfo();
+
+    // expose for debugging
+    window.chatzonee = { messages, saveMessages, addMessage, deleteMessage };
+  </script>
 </body>
 </html>
